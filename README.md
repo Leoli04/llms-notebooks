@@ -7,6 +7,7 @@ colab
 ## 目录说明
 
 - huggingface : 在huggingface学习笔记
+- pyTorch : 关于pyTorch使用笔记
 
 ## 学习链接
 
@@ -20,3 +21,18 @@ colab
 
 - [tensorflow](https://www.tensorflow.org/tutorials)
 - [pytorch](https://pytorch.org/tutorials/beginner/basics/intro.html)
+
+## GPU or CPU 资源
+
+### [Google Colab](https://colab.research.google.com/): 
+- 简介：Google Colab（全称Google Colaboratory）是由Google提供的一种基于云端的交互式编程环境，特别适用于机器学习、数据分析和教育目的。
+- 使用：支持jupyter notebook直接运行,也可以将创建的笔记直接保存到github。提供的最长执行时间为 12 小时，其中空闲时间为 30 分钟,显存大小大概在15GB左右, 免费的google 磁盘大概时不时断线，不稳定。
+
+### [Kaggle](https://www.kaggle.com/)
+- 简介：Kaggle是一个全球性的数据科学和机器学习竞赛平台，汇聚了全球顶尖的数据科学家和机器学习爱好者，共同解决各种实际问题。
+- 使用：支持jupyter notebook直接运行,每周30个小时，显存大小大概在15GB左右, 免费访问的 GPU 为 Nvidia Tesla P100 和 T4，单次会话最长运行时间为 9 小时,相对 colab稳定一点。GPU需要绑定手机号才能使用。
+
+### [阿里天池](https://tianchi.aliyun.com/)
+
+- 简介：阿里天池的天池实验室，是阿里巴巴集团旗下的阿里云专门为数据科学家、开发者、科研工作者及学生等群体打造的一个云端开发与实验平台。
+- 使用：“天池实验室”-->“天池Notebook”进入，然后注册，登录。这是阿里云提供的打比赛的平台。总共 60小时的免费GPU使用，CPU不限量,但是单次使用GPU最多8小时。

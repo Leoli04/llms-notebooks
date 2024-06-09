@@ -12,7 +12,11 @@ colab
 ## 学习链接
 
 - [huggingface](https://huggingface.co/learn) ：
+  
+- [动手学深度学习](https://zh.d2l.ai/): github地址：https://github.com/d2l-ai/d2l-zh
+  
 - [fastai](https://course.fast.ai/)： 
+  
 - [deeplearningbook](https://www.deeplearningbook.org/)：这本书全面介绍了深度学习的基础知识，包括数学背景、主要算法和应用。
 
 - [mml-book](https://mml-book.com): [github地址](https://github.com/mml-book/mml-book.github.io?tab=readme-ov-file)，这本书提供了机器学习领域的全面介绍，包括概率模型、推断方法和学习算法。
@@ -20,6 +24,7 @@ colab
 - [deeplearning.ai](https://www.deeplearning.ai/)：由Andrew Ng（吴恩达）创立的一个在线教育平台。
 
 - [tensorflow](https://www.tensorflow.org/tutorials)：TensorFlow 是由Google Brain团队开发的一个开源机器学习框架。
+  
 - [pytorch](https://pytorch.org/tutorials/beginner/basics/intro.html)：PyTorch 是由Facebook的AI研究团队开发的一个开源机器学习库。
 
 ## GPU or CPU 资源

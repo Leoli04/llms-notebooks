@@ -2,12 +2,13 @@
 # llms-notebooks
 
 记录关于llm的学习笔记。笔记使用 [Google Colab](https://colab.research.google.com/) 编写。
-colab
+
 
 ## 目录说明
 
 - huggingface : 在huggingface学习笔记
 - pyTorch : 关于pyTorch使用笔记
+- d2l ： 动手学深度学习笔记
 
 ## 学习链接
 

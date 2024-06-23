@@ -21,6 +21,16 @@ class Seq2SeqEncoder(d2l.Encoder):
     def forward(self, X, *args):
         # 输出'X'的形状：(batch_size,num_steps,embed_size)
         X = self.embedding(X)
+        '''
+        X 的形状是 (batch_size, num_steps, embed_size)
+            第一个维度（0轴）是批量大小（batch_size），表示一次处理的样本数量。
+            第二个维度（1轴）是序列长度或时间步长（num_steps），代表每个样本中的元素数量或时间步的数量。
+            第三个维度（2轴）是每个时间步的特征维度，这里是嵌入向量的大小（embed_size）。
+        X.permute(1, 0, 2): 将 X 的维度从 (batch_size, num_steps, embed_size) 变为 (num_steps, batch_size, embed_size)。
+            1 表示原来的1轴（num_steps）现在变成了0轴。
+            0 表示原来的0轴（batch_size）现在变成了1轴。
+            2 表示原来的2轴（embed_size）位置不变，现在仍然是2轴。
+        '''
         # 在循环神经网络模型中，第一个轴对应于时间步
         X = X.permute(1, 0, 2)
         # 如果未提及状态，则默认为0

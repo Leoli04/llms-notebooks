@@ -79,7 +79,10 @@ def train_concise(wd):
                           d2l.evaluate_loss(net, test_iter, loss)))
     print('w的L2范数：', net[0].weight.norm().item())
 
-
+'''
+演示权重衰减
+权重衰减通过在模型的损失函数中添加一个正则化项来实现，该正则化项与模型的权重参数的平方和成正比。
+'''
 if __name__ == '__main__':
     n_train, n_test, num_inputs, batch_size = 20, 100, 200, 5
     # 原始权重、偏置参数

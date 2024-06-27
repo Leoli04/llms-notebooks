@@ -42,6 +42,7 @@ def train_pytorch(train_iter, test_iter,params):
 
     batch_size, lr, num_epochs = 256, 0.1, 10
     loss = nn.CrossEntropyLoss(reduction='none')
+    # 使用随机梯度下降优化器 优化模型参数
     trainer = torch.optim.SGD(net.parameters(), lr=lr)
     # 加载数据
     train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)

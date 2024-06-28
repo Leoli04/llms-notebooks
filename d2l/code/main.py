@@ -5,7 +5,7 @@ from train_util import train_ch3
 from train_util import train_ch6
 from data_util import load_data_fashion_mnist
 from gpu_util import try_gpu
-from cnn.cnn_model import lenet,alexnet,vgg,nin,googlenet,BatchNorm
+from cnn.cnn_model import lenet,alexnet,vgg,nin,googlenet,BatchNorm,res_net
 
 
 def input_shape_change(X,net):
@@ -103,6 +103,16 @@ def batch_norm_train():
     lr, num_epochs, batch_size = 1.0, 10, 256
     train_fashion_mnist(lr, num_epochs, batch_size, net)
 
+def res_net_train():
+    net = res_net()
+    X = torch.rand(size=(1, 1, 224, 224))
+
+    input_shape_change(X, net)
+
+    lr, num_epochs, batch_size = 0.05, 10, 256
+
+    train_fashion_mnist(lr, num_epochs, batch_size, net)
+
 
 if __name__ == '__main__':
 
@@ -114,4 +124,6 @@ if __name__ == '__main__':
     # alexnet_train()
 
     # googlenet_train()
-    batch_norm_train()
+    # batch_norm_train()
+
+    res_net_train()

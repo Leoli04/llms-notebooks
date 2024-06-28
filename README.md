@@ -45,3 +45,6 @@
 
 ### [百度 AI Studio](https://aistudio.baidu.com/overview)
 - 待验证
+
+## 工具资料
+- [conv_arithmetic](https://github.com/vdumoulin/conv_arithmetic?tab=readme-ov-file):卷积算法技术

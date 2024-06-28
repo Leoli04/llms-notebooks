@@ -277,7 +277,7 @@ def batch_norm(X, gamma, beta, moving_mean, moving_var, eps, momentum):
 
 class Residual(nn.Module):  #@save
     '''
-    残差块
+    残差块： 残差块里首先有2个有相同输出通道数的 3 X 3卷积层.每个卷积层后接一个批量规范化层和ReLU激活函数。
     '''
     def __init__(self, input_channels, num_channels,
                  use_1x1conv=False, strides=1):
@@ -287,15 +287,19 @@ class Residual(nn.Module):  #@save
         self.conv2 = nn.Conv2d(num_channels, num_channels,
                                kernel_size=3, padding=1)
         if use_1x1conv:
+            # use_1x1conv=True时，添加通过 1X1卷积调整通道和分辨率。
             self.conv3 = nn.Conv2d(input_channels, num_channels,
                                    kernel_size=1, stride=strides)
         else:
+            # 当use_1x1conv=False时，应用ReLU非线性函数之前，将输入添加到输出
             self.conv3 = None
         self.bn1 = nn.BatchNorm2d(num_channels)
         self.bn2 = nn.BatchNorm2d(num_channels)
 
     def forward(self, X):
+        # 输入先经过卷积层，然后批量规范化，然后是relu激活函数
         Y = F.relu(self.bn1(self.conv1(X)))
+        # 在经过卷积层，然后批量规范化
         Y = self.bn2(self.conv2(Y))
         if self.conv3:
             X = self.conv3(X)
@@ -322,6 +326,16 @@ def resnet_block(input_channels, num_channels, num_residuals,
     return blk
 
 def res_net():
+    '''
+    残差模型：ResNet的前两层跟之前介绍的GoogLeNet中的一样： 在输出通道数为64、步幅为2的7X7卷积层后，
+    接步幅为2的3X3的最大汇聚层。 不同之处在于ResNet每个卷积层后增加了批量规范化层。
+
+    GoogLeNet在后面接了4个由Inception块组成的模块。 ResNet则使用4个由残差块组成的模块，每个模块使用若干个
+    同样输出通道数的残差块。
+     第一个模块的通道数同输入通道数一致。 由于之前已经使用了步幅为2的最大汇聚层，所以无须减小高和宽。
+     之后的每个模块在第一个残差块里将上一个模块的通道数翻倍，并将高和宽减半。
+    :return:
+    '''
     b1 = nn.Sequential(nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3),
                        nn.BatchNorm2d(64), nn.ReLU(),
                        nn.MaxPool2d(kernel_size=3, stride=2, padding=1))
@@ -332,4 +346,85 @@ def res_net():
     net = nn.Sequential(b1, b2, b3, b4, b5,
                         nn.AdaptiveAvgPool2d((1, 1)),
                         nn.Flatten(), nn.Linear(512, 10))
+    return net
+
+def conv_block(input_channels, num_channels):
+    '''
+    卷积块
+    :param input_channels:
+    :param num_channels:
+    :return:
+    '''
+    return nn.Sequential(
+        nn.BatchNorm2d(input_channels), nn.ReLU(),
+        nn.Conv2d(input_channels, num_channels, kernel_size=3, padding=1))
+
+class DenseBlock(nn.Module):
+    '''
+    稠密块:
+    一个稠密块由多个卷积块组成，每个卷积块使用相同数量的输出通道。
+    在前向传播中，我们将每个卷积块的输入和输出在通道维上连结。
+    '''
+    def __init__(self, num_convs, input_channels, num_channels):
+        super(DenseBlock, self).__init__()
+        layer = []
+        for i in range(num_convs):
+            layer.append(conv_block(
+                num_channels * i + input_channels, num_channels))
+        self.net = nn.Sequential(*layer)
+
+    def forward(self, X):
+        for blk in self.net:
+            Y = blk(X)
+            # 连接通道维度上每个块的输入和输出
+            X = torch.cat((X, Y), dim=1)
+        return X
+
+def transition_block(input_channels, num_channels):
+
+    '''
+    过渡层：
+    通过 1X1 卷积层来减小通道数，并使用步幅为2的平均汇聚层减半高和宽，从而进一步降低模型复杂度。
+
+    由于每个稠密块都会带来通道数的增加，使用过多则会过于复杂化模型。
+    :param input_channels:
+    :param num_channels:
+    :return:
+    '''
+    return nn.Sequential(
+        nn.BatchNorm2d(input_channels), nn.ReLU(),
+        nn.Conv2d(input_channels, num_channels, kernel_size=1),
+        nn.AvgPool2d(kernel_size=2, stride=2))
+
+def dense_net():
+    '''
+    稠密模型：
+    ResNet和DenseNet的关键区别在于，DenseNet输出是连接（用[,]表示）而不是如ResNet的简单相加
+    :return:
+    '''
+    b1 = nn.Sequential(
+        nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3),
+        nn.BatchNorm2d(64), nn.ReLU(),
+        nn.MaxPool2d(kernel_size=3, stride=2, padding=1))
+
+    # num_channels为当前的通道数
+    num_channels, growth_rate = 64, 32
+    # 4个稠密块，每个稠密块使用4个卷积层
+    num_convs_in_dense_blocks = [4, 4, 4, 4]
+    blks = []
+    for i, num_convs in enumerate(num_convs_in_dense_blocks):
+        blks.append(DenseBlock(num_convs, num_channels, growth_rate))
+        # 上一个稠密块的输出通道数
+        num_channels += num_convs * growth_rate
+        # 在稠密块之间添加一个转换层，使通道数量减半
+        if i != len(num_convs_in_dense_blocks) - 1:
+            blks.append(transition_block(num_channels, num_channels // 2))
+            num_channels = num_channels // 2
+
+    net = nn.Sequential(
+        b1, *blks,
+        nn.BatchNorm2d(num_channels), nn.ReLU(),
+        nn.AdaptiveAvgPool2d((1, 1)),
+        nn.Flatten(),
+        nn.Linear(num_channels, 10))
     return net

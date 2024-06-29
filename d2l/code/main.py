@@ -1,11 +1,12 @@
 import torch
 from torch import nn
+from torch.nn import functional as F
 
-from train_util import train_ch3
-from train_util import train_ch6
-from data_util import load_data_fashion_mnist
+from train_util import train_ch3, train_ch6,train_ch8
+from data_util import load_data_fashion_mnist,load_data_time_machine
 from gpu_util import try_gpu
 from cnn.cnn_model import lenet,alexnet,vgg,nin,googlenet,BatchNorm,res_net
+from rnn.rnn_model import RNNModelScratch,rnn,get_params,init_rnn_state,RNNModel
 
 
 def input_shape_change(X,net):
@@ -114,6 +115,32 @@ def res_net_train():
     train_fashion_mnist(lr, num_epochs, batch_size, net)
 
 
+def rnn_custom_train():
+    batch_size, num_steps = 32, 35
+    train_iter, vocab = load_data_time_machine(batch_size, num_steps)
+
+    num_hiddens = 512
+    net = RNNModelScratch(len(vocab), num_hiddens, try_gpu(), get_params,
+                          init_rnn_state, rnn)
+
+    num_epochs, lr = 500, 1
+    train_ch8(net, train_iter, vocab, lr, num_epochs, try_gpu())
+
+def rnn_pytorch_train():
+    batch_size, num_steps = 32, 35
+    train_iter, vocab = load_data_time_machine(batch_size, num_steps)
+    print(train_iter,vocab)
+    num_hiddens = 256
+    rnn_layer = nn.RNN(len(vocab), num_hiddens)
+    device = try_gpu()
+    net = RNNModel(rnn_layer, vocab_size=len(vocab))
+    net = net.to(device)
+
+    num_epochs, lr = 500, 1
+
+    train_ch8(net, train_iter, vocab, lr, num_epochs, device)
+
+
 if __name__ == '__main__':
 
     ######################################
@@ -126,4 +153,12 @@ if __name__ == '__main__':
     # googlenet_train()
     # batch_norm_train()
 
-    res_net_train()
+    # res_net_train()
+
+    ######################################
+    # rnn
+    ######################################
+    # rnn_custom_train()
+
+    rnn_pytorch_train()
+

@@ -5,6 +5,11 @@ from d2l import torch as d2l
 
 
 def f(x):
+    '''
+    生成一个人工数据集函数
+    :param x:
+    :return:
+    '''
     return 2 * torch.sin(x) + x ** 0.8
 
 def plot_kernel_reg(y_hat):
@@ -35,6 +40,7 @@ if __name__ == '__main__':
 
     # 生成数据
     n_train = 50  # 训练样本数
+    # 排序后的张量（sorted tensor）和对应的索引张量（indices tensor）
     x_train, _ = torch.sort(torch.rand(n_train) * 5)  # 排序后的训练样本
 
 

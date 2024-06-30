@@ -140,6 +140,17 @@ def rnn_pytorch_train():
 
     train_ch8(net, train_iter, vocab, lr, num_epochs, device)
 
+def gru_custom_train():
+
+    # 加载数据
+    batch_size, num_steps = 32, 35
+    train_iter, vocab = load_data_time_machine(batch_size, num_steps)
+    vocab_size, num_hiddens, device = len(vocab), 256, d2l.try_gpu()
+    num_epochs, lr = 500, 1
+    model = RNNModelScratch(len(vocab), num_hiddens, device, get_params,
+                            init_gru_state, gru)
+    train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+
 
 if __name__ == '__main__':
 

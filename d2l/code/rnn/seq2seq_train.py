@@ -2,11 +2,12 @@ import collections
 import math
 import torch
 from torch import nn
+from encoder_decoder import Encoder,Decoder
 from d2l import torch as d2l
 
 
 #@save
-class Seq2SeqEncoder(d2l.Encoder):
+class Seq2SeqEncoder(Encoder):
     """
     用于序列到序列学习的循环神经网络编码器
     """
@@ -14,6 +15,10 @@ class Seq2SeqEncoder(d2l.Encoder):
                  dropout=0, **kwargs):
         super(Seq2SeqEncoder, self).__init__(**kwargs)
         # 嵌入层
+        '''
+        使用了嵌入层（embedding layer） 来获得输入序列中每个词元的特征向量。 
+        嵌入层的权重是一个矩阵， 其行数等于输入词表的大小（vocab_size）， 其列数等于特征向量的维度（embed_size）
+        '''
         self.embedding = nn.Embedding(vocab_size, embed_size)
         self.rnn = nn.GRU(embed_size, num_hiddens, num_layers,
                           dropout=dropout)
@@ -39,7 +44,7 @@ class Seq2SeqEncoder(d2l.Encoder):
         # state的形状:(num_layers,batch_size,num_hiddens)
         return output, state
 
-class Seq2SeqDecoder(d2l.Decoder):
+class Seq2SeqDecoder(Decoder):
     """
     用于序列到序列学习的循环神经网络解码器
     """
@@ -187,6 +192,7 @@ def bleu(pred_seq, label_seq, k):  #@save
     return score
 
 if __name__ == '__main__':
+
     embed_size, num_hiddens, num_layers, dropout = 32, 32, 2, 0.1
     batch_size, num_steps = 64, 10
     lr, num_epochs, device = 0.005, 300, d2l.try_gpu()

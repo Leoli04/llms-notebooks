@@ -8,10 +8,6 @@ from train_handle import train_ch8
 from torch import nn
 from d2l import torch as d2l
 
-# 加载数据
-batch_size, num_steps = 32, 35
-train_iter, vocab = load_data_time_machine(batch_size, num_steps)
-
 
 # 初始化模型参数
 
@@ -24,6 +20,7 @@ def get_params(vocab_size, num_hiddens, device):
     def three():
         return (normal((num_inputs, num_hiddens)),
                 normal((num_hiddens, num_hiddens)),
+                # 偏置项设为0
                 torch.zeros(num_hiddens, device=device))
 
     W_xz, W_hz, b_z = three()  # 更新门参数
@@ -62,18 +59,28 @@ def gru(inputs, state, params):
 # ########################
 # 自己实现训练
 ###########################
-vocab_size, num_hiddens, device = len(vocab), 256, d2l.try_gpu()
-num_epochs, lr = 500, 1
-model = RNNModelScratch(len(vocab), num_hiddens, device, get_params,
+def gru_custom_train():
+
+    model = RNNModelScratch(len(vocab), num_hiddens, device, get_params,
                             init_gru_state, gru)
-train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+    train_ch8(model, train_iter, vocab, lr, num_epochs, device)
 
 # ########################
 # 使用pytorch框架训练
 ###########################
+def gru_custom_pytorch():
 
-num_inputs = vocab_size
-gru_layer = nn.GRU(num_inputs, num_hiddens)
-model = RNNModel(gru_layer, len(vocab))
-model = model.to(device)
-train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+    num_inputs = vocab_size
+    gru_layer = nn.GRU(num_inputs, num_hiddens)
+    model = RNNModel(gru_layer, len(vocab))
+    model = model.to(device)
+    train_ch8(model, train_iter, vocab, lr, num_epochs, device)
+
+if __name__ == '__main__':
+    batch_size, num_steps = 32, 35
+    train_iter, vocab = load_data_time_machine(batch_size, num_steps)
+
+    vocab_size, num_hiddens, device = len(vocab), 256, d2l.try_gpu()
+    num_epochs, lr = 500, 1
+    gru_custom_train()
+    # gru_custom_pytorch()

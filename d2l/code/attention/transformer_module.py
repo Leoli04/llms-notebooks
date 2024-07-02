@@ -25,13 +25,20 @@ class PositionWiseFFN(nn.Module):
 
 #@save
 class AddNorm(nn.Module):
-    """残差连接后进行层规范化"""
+    """使用残差连接和层规范化来实现"""
     def __init__(self, normalized_shape, dropout, **kwargs):
         super(AddNorm, self).__init__(**kwargs)
         self.dropout = nn.Dropout(dropout)
         self.ln = nn.LayerNorm(normalized_shape)
 
     def forward(self, X, Y):
+        '''
+        self.dropout(Y) + X这一步体现了残差连接的核心思想
+        self.ln: 对和应用层规范化操作
+        :param X:
+        :param Y:
+        :return:
+        '''
         return self.ln(self.dropout(Y) + X)
 
 #@save
